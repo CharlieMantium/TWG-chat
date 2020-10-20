@@ -1,26 +1,32 @@
+import 'react-native-gesture-handler';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { ApolloProvider } from '@apollo/client';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import { client } from './queries/client';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+import { RootStackParamList } from './types/types';
+import RoomSelection from './components/RoomSelection/RoomSelection';
+import Room from './components/Room/Room';
 
-const App = () => {
+const Stack = createStackNavigator<RootStackParamList>();
+
+const App: React.FC = () => {
   return (
     <ApolloProvider client={client}>
-      <View style={styles.container}>
-        <Text>Open up App.tsx to start working on your app!</Text>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Selection">
+            <Stack.Screen
+              name="Selection"
+              component={RoomSelection}
+              options={{ title: 'Chatly Rooms' }}
+            />
+            <Stack.Screen name="Room" component={Room} />
+          </Stack.Navigator>
+        </NavigationContainer>
         <StatusBar style="auto" />
-      </View>
     </ApolloProvider>
   )
 };
