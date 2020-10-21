@@ -21,7 +21,7 @@ const RoomSelection: React.FC = () => {
   return (
     <RoomSelectionWrapper>
       {loading && (<Text>Loading...</Text>)}
-      {error && (<Text>Error!</Text>)}
+      {error && (<Text>Error</Text>)}
       {data && data.usersRooms.rooms.map(({name, id}: {name: string; id: string}) => (
         <Button 
           key={id} 
