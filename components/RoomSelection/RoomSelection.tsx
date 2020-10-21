@@ -1,9 +1,12 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { View, Button } from 'react-native';
+import { View, Button, Text } from 'react-native';
+import { useQuery } from '@apollo/client';
+import { useNavigation } from '@react-navigation/native';
 
+import { GET_ROOMS } from '../../graphql/queries';
 import { RoomSelectionScreenNavigationProp } from '../../types/types';
-import {colors} from '../../styles/base';
+import { colors } from '../../styles/base';
 
 const RoomSelectionWrapper = styled(View)`
   margin: 10px auto;
@@ -11,16 +14,26 @@ const RoomSelectionWrapper = styled(View)`
   border: 1px solid ${colors.beta};
 `;
 
-interface RoomSelectionProps {
-  navigation: RoomSelectionScreenNavigationProp;
-};
+const RoomSelection: React.FC = () => {
+  const navigation = useNavigation<RoomSelectionScreenNavigationProp>();
+  const { loading, error, data } = useQuery(GET_ROOMS);
 
-const RoomSelection: React.FC<RoomSelectionProps> = ({ navigation }) => (
-  <RoomSelectionWrapper>
-    <Button title="Go to room" onPress={() => navigation.navigate('Room')}/>
-    <Button title="Go to room" onPress={() => navigation.navigate('Room')}/>
-    <Button title="Go to room" onPress={() => navigation.navigate('Room')}/>
-  </RoomSelectionWrapper>
-);
+  return (
+    <RoomSelectionWrapper>
+      {loading && (<Text>Loading...</Text>)}
+      {error && (<Text>Error!</Text>)}
+      {data && data.usersRooms.rooms.map(({name, id}: {name: string; id: string}) => (
+        <Button 
+          key={id} 
+          title={`Go to room ${name}`}
+          onPress={() => navigation.navigate("Room", {
+            name,
+            id,
+          })}
+        />
+      ))}
+    </RoomSelectionWrapper>
+  );
+};
 
 export default RoomSelection;
