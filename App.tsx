@@ -5,7 +5,8 @@ import { ApolloProvider } from '@apollo/client';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { client } from './queries/client';
+import { client } from './graphql/client';
+
 
 import { RootStackParamList } from './types/types';
 import RoomSelection from './components/RoomSelection/RoomSelection';
