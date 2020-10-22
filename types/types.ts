@@ -25,3 +25,30 @@ export type RoomScreenRouteProp = RouteProp<
   RootStackParamList,
   'Room'
 >;
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+};
+
+export interface Message {
+  body: string;
+  id: string;
+  insertedAt: string;
+  user: User;
+};
+
+export interface Messages {
+  id: string;
+  name: string;
+  user: User;
+  messages: Message[];
+};
+
+export interface Room {
+  id: string;
+  name: string;
+}

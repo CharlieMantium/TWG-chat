@@ -5,7 +5,7 @@ import { useQuery } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
 
 import { GET_ROOMS } from '../../graphql/queries';
-import { RoomSelectionScreenNavigationProp } from '../../types/types';
+import { RoomSelectionScreenNavigationProp, Room } from '../../types/types';
 import { colors } from '../../styles/base';
 
 const RoomSelectionWrapper = styled(View)`
@@ -22,7 +22,7 @@ const RoomSelection: React.FC = () => {
     <RoomSelectionWrapper>
       {loading && (<Text>Loading...</Text>)}
       {error && (<Text>Error</Text>)}
-      {data && data.usersRooms.rooms.map(({name, id}: {name: string; id: string}) => (
+      {data && data.usersRooms.rooms.map(({name, id}: Room) => (
         <Button 
           key={id} 
           title={`Go to room ${name}`}

@@ -19,7 +19,13 @@ const Navigation: React.FC = () => {
           component={RoomSelection}
           options={{ title: 'Chatly Rooms' }}
         />
-        <Stack.Screen name="Room" component={Room}/>
+        <Stack.Screen
+          name="Room"
+          component={Room}
+          options={({ route }) => ({
+            title: route.params.name,
+          })}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
