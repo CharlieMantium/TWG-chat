@@ -8,11 +8,12 @@ import {
   NativeSyntheticEvent,
   TextInputChangeEventData
 } from 'react-native';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 
 import { RoomScreenNavigationProp } from '../../types/types';
 import { RoomScreenRouteProp } from '../../types/types';
 import { GET_MESSAGES } from '../../graphql/queries';
+import { SEND_MESSAGE } from '../../graphql/mutations';
 import { colors } from '../../styles/base';
 
 const RoomWrapper = styled(View)`
@@ -39,9 +40,19 @@ const Room: React.FC<RoomProps> = ({ route, navigation }) => {
   const { loading, data } = useQuery(GET_MESSAGES, {
     variables: { room: id },
   });
+  const [sendMessage] = useMutation(SEND_MESSAGE);
 
-  const onMessageChange = (e: NativeSyntheticEvent<TextInputChangeEventData>): void => 
-    {setMessage(e.nativeEvent.text)};
+  const onInputChange = (e: NativeSyntheticEvent<TextInputChangeEventData>): void => 
+    setMessage(e.nativeEvent.text);
+
+  const onButtonClick = () => {
+    if (message.length) sendMessage({
+      variables: {
+        message,
+        roomID: id,
+      },
+    });
+  };
 
   return (
     <RoomWrapper>
@@ -52,8 +63,8 @@ const Room: React.FC<RoomProps> = ({ route, navigation }) => {
         <Text key={id}>{body}</Text>
       ))}
       <MessageInputWrapper>
-        <MessageInput value={message} onChange={onMessageChange}/>
-        <Button title="Send" onPress={() => {console.log(message)}} />
+        <MessageInput value={message} onChange={onInputChange}/>
+        <Button title="Send" onPress={onButtonClick} />
       </MessageInputWrapper>
     </RoomWrapper>
     );
