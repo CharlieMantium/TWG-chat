@@ -7,6 +7,7 @@ import { RoomScreenRouteProp } from '../../types/types';
 import { user } from '../../graphql/credentials';
 import { GET_MESSAGES } from '../../graphql/queries';
 import { SEND_MESSAGE } from '../../graphql/mutations';
+import { SUBSCRIBE_FOR_MESSAGES } from '../../graphql/subscriptions';
 
 interface RoomProps {
   navigation: RoomScreenNavigationProp;
@@ -16,10 +17,34 @@ interface RoomProps {
 const Room: React.FC<RoomProps> = ({ route }) => {
   const { id } = route.params;
   const [ messages, setMessages ] = useState<IMessage[]>([]);
-  const { data } = useQuery(GET_MESSAGES, {
+  const { data, subscribeToMore } = useQuery(GET_MESSAGES, {
     variables: { room: id },
   });
   const [ sendMessage ] = useMutation(SEND_MESSAGE);
+
+  const handleSend = (newMessage: IMessage[]) => {
+    sendMessage({
+      variables: {
+        message: newMessage[0].text,
+        roomID: id,
+      },
+    });
+  };
+
+  const subscribeToNewMessages = () => subscribeToMore({
+    document: SUBSCRIBE_FOR_MESSAGES,
+    variables: { room: id },
+    updateQuery: (prev, { subscriptionData }) => {
+      if (!subscriptionData.data) return prev;
+      const newMessage = subscriptionData.data.messageAdded;
+      return {
+        room: {
+          ...prev.room,
+          messages: [newMessage, ...prev.room.messages],
+        }
+      }
+    },
+  });
 
   useEffect(()=> {
     if (data) setMessages(data.room.messages.map(
@@ -34,15 +59,9 @@ const Room: React.FC<RoomProps> = ({ route }) => {
       })) as IMessage[])
   }, [data]);
 
-  const handleSend = (newMessage: IMessage[]) => {
-    setMessages(GiftedChat.append(messages, newMessage));
-    sendMessage({
-      variables: {
-        message: newMessage[0].text,
-        roomID: id,
-      },
-    });
-  };
+  useEffect(() => {
+    if (data) subscribeToNewMessages();
+  }, [data]);
 
   return (
     <GiftedChat
