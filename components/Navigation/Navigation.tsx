@@ -4,7 +4,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { RootStackParamList } from '../../types/types';
-
 import RoomSelection from '../RoomSelection/RoomSelection';
 import Room from '../Room/Room';
 

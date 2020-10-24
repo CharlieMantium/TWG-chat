@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import { useQuery, useMutation } from '@apollo/client';
-import uniqBy from 'lodash/uniqBy';
 
 import { RoomScreenNavigationProp, Message } from '../../types/types';
 import { RoomScreenRouteProp } from '../../types/types';
