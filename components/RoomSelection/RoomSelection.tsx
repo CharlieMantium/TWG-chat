@@ -6,12 +6,14 @@ import { useNavigation } from '@react-navigation/native';
 
 import { GET_ROOMS } from '../../graphql/queries';
 import { RoomSelectionScreenNavigationProp, Room } from '../../types/types';
-import { colors } from '../../styles/base';
 
 const RoomSelectionWrapper = styled(View)`
   margin: 10px auto;
   padding: 10px 0;
-  border: 1px solid ${colors.beta};
+`;
+
+const StyledButtonWrapper = styled(View)`
+  margin: 5px 0;
 `;
 
 const RoomSelection: React.FC = () => {
@@ -23,14 +25,17 @@ const RoomSelection: React.FC = () => {
       {loading && (<Text>Loading...</Text>)}
       {error && (<Text>Error</Text>)}
       {data && data.usersRooms.rooms.map(({name, id}: Room) => (
-        <Button 
-          key={id} 
-          title={`Go to room ${name}`}
-          onPress={() => navigation.navigate("Room", {
-            name,
-            id,
-          })}
-        />
+        <StyledButtonWrapper key={id} >
+          <Button 
+            key={id} 
+            title={name}
+            onPress={() => navigation.navigate("Room", {
+              name,
+              id,
+            })}
+          />
+        </StyledButtonWrapper>
+        
       ))}
     </RoomSelectionWrapper>
   );

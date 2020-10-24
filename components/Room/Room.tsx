@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import { useQuery, useMutation } from '@apollo/client';
+import uniqBy from 'lodash/uniqBy';
 
 import { RoomScreenNavigationProp, Message } from '../../types/types';
 import { RoomScreenRouteProp } from '../../types/types';
@@ -17,6 +18,7 @@ interface RoomProps {
 const Room: React.FC<RoomProps> = ({ route }) => {
   const { id } = route.params;
   const [ messages, setMessages ] = useState<IMessage[]>([]);
+  const [ isDataLoaded, setIsDataLoaded ] = useState(false);
   const { data, subscribeToMore } = useQuery(GET_MESSAGES, {
     variables: { room: id },
   });
@@ -31,23 +33,9 @@ const Room: React.FC<RoomProps> = ({ route }) => {
     });
   };
 
-  const subscribeToNewMessages = () => subscribeToMore({
-    document: SUBSCRIBE_FOR_MESSAGES,
-    variables: { room: id },
-    updateQuery: (prev, { subscriptionData }) => {
-      if (!subscriptionData.data) return prev;
-      const newMessage = subscriptionData.data.messageAdded;
-      return {
-        room: {
-          ...prev.room,
-          messages: [newMessage, ...prev.room.messages],
-        }
-      }
-    },
-  });
-
   useEffect(()=> {
-    if (data) setMessages(data.room.messages.map(
+    if (data) {
+      setMessages(data.room.messages.map(
       ({ id, body, insertedAt, user }: Message) => ({
         _id: id,
         text: body,
@@ -56,12 +44,35 @@ const Room: React.FC<RoomProps> = ({ route }) => {
           _id: user.id,
           name: `${user.firstName} ${user.lastName}`,
         }
-      })) as IMessage[])
+      })) as IMessage[]);
+      setIsDataLoaded(true);
+    }
   }, [data]);
 
   useEffect(() => {
-    if (data) subscribeToNewMessages();
-  }, [data]);
+    const subscribeToNewMessages = () => subscribeToMore({
+      document: SUBSCRIBE_FOR_MESSAGES,
+      variables: { room: id },
+      updateQuery: (prev, { subscriptionData }) => {
+        const newMessageID = subscriptionData.data.messageAdded.id;
+        const isNewMessageAlreadyIn = !!prev.room.messages.filter((message: Message) => 
+          message.id === newMessageID
+        ).length;
+        if (!subscriptionData.data.messageAdded || isNewMessageAlreadyIn) return prev;
+        const newMessage = subscriptionData.data.messageAdded;
+        return {
+          room: {
+            ...prev.room,
+            messages: [newMessage, ...prev.room.messages],
+          }
+        }
+      },
+    });
+
+    if (data && isDataLoaded) subscribeToNewMessages();
+
+    return subscribeToNewMessages();
+  }, [isDataLoaded]);
 
   return (
     <GiftedChat
